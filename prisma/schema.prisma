@@ -19,4 +19,12 @@ model Videojuego {
   nombre String
   fecha DateTime @default(now())
   estado String
+  categoria_id String?
+  categoria Categoria? @relation(fields: [categoria_id], references: [id])
+}
+
+model Categoria {
+  id String @id @default(uuid())
+  nombre String
+  videojuegos Videojuego[]
 }
