@@ -2,10 +2,8 @@ POST http://localhost:5002/videojuegos/actualizar
 Content-Type: application/json
 
 {
-    "id" : 6,
-    "nombre" : "Red Dead 1",
-    "categoria" : "Acción",
-    "plataformas" : ["PC", "PS5"],
-    "fecha" : "01-10-2020",
-    "estado" : "Nuevo"
+    "id" : "b9175dbc-d2ab-4771-ac3d-fe275e641bec",
+    "nombre" : "Red Dead 2",
+    "fecha" : "2025-11-14",
+    "estado" : "Usado"
 }

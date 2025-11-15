@@ -4,6 +4,7 @@ import cors from "cors"
 import bodyParser from "body-parser"
 import dataVideojuegos, { Videojuego } from "./data"
 import { PrismaClient } from "./generated/prisma"
+import { PrismaClientKnownRequestError } from "./generated/prisma/runtime/library"
 
 dotenv.config()
 const app = express()
@@ -28,8 +29,7 @@ app.get("/videojuegos", async (req : Request, resp : Response) => {
 
 // Endpoint GET para eliminar un videojuego
 // http://localhost:5002/videojuegos/eliminar?id=1
-app.get("/videojuegos/eliminar", (req : Request, resp : Response) => {
-    console.log("ENTRA")
+app.get("/videojuegos/eliminar", async (req : Request, resp : Response) => {
     const id = req.query.id
 
     if (id == undefined) {
@@ -39,28 +39,28 @@ app.get("/videojuegos/eliminar", (req : Request, resp : Response) => {
         return
     }
 
-    let posicion = -1;
-    for (let i =0; i < dataVideojuegos.length; i++) {
-        if (dataVideojuegos[i]!.id == parseInt(id.toString()) ) {
-            posicion = i
-            break
-        }
-    }
-    if (posicion == -1) {
-        resp.status(400).json({
-            error : "Id enviado no existe"
+    const prisma = new PrismaClient()
+
+    try {
+        await prisma.videojuego.delete({
+            where : {
+                id : id.toString()
+            }
         })
+        resp.status(200).json("")
         return
+    }catch (e) {
+        const dataError = e as PrismaClientKnownRequestError
+        resp.status(400).json({
+            error : dataError.meta!.cause
+        })
     }
-    dataVideojuegos.splice(posicion, 1)
-    resp.status(200).json({
-        error : ""
-    })
+    
 })
 
 // Endpoint GET para obtener data de un videojuego
 // http://localhost:5002/videojuego/2
-app.get("/videojuegos/:id", (req : Request, resp : Response) => {
+app.get("/videojuegos/:id", async (req : Request, resp : Response) => {
     const id = req.params.id
 
     if (id == undefined) {
@@ -70,16 +70,22 @@ app.get("/videojuegos/:id", (req : Request, resp : Response) => {
         return
     }
 
-    const videojuegosFiltrados = dataVideojuegos.filter((vj :Videojuego) => {
-        return vj.id == parseInt(id)
-    })
-    if (videojuegosFiltrados.length == 0) {
-        resp.status(400).json({
-            error : "El id que ha enviado no existe."
+    const prisma = new PrismaClient()
+
+    try {
+        const videojuego = await prisma.videojuego.findFirstOrThrow({
+            where : {
+                id : id
+            }
         })
+        resp.status(200).json(videojuego)
         return
+    }catch(e) {
+        const dataError = e as PrismaClientKnownRequestError
+        resp.status(400).json({
+            error : dataError.meta!.cause
+        })
     }
-    resp.status(200).json(videojuegosFiltrados[0])
 })
 
 // Endpoint POST para registrar un videojuego
@@ -97,28 +103,31 @@ app.post("/videojuegos/crear", async (req : Request, resp : Response) => {
 })
 
 // Endpoint POST para modificar un videojuego
-app.post("/videojuegos/actualizar", (req : Request, resp : Response) => {
+app.post("/videojuegos/actualizar", async (req : Request, resp : Response) => {
     const data = req.body
+    const id = data.id
 
-    for (let i = 0; i < dataVideojuegos.length; i++) {
-        const vj = dataVideojuegos[i]!
-        if (vj.id == data.id) {
-            // Es el vj a modificar
-            vj.nombre = data.nombre
-            vj.categoria = data.categoria
-            vj.plataformas = data.plataformas
-            vj.fecha = data.fecha
-            vj.estado = data.estado
+    const prisma = new PrismaClient()
 
-            resp.status(200).json(vj)
-            return
-        }
+    try {
+        const videojuegoActualizado = await prisma.videojuego.update({
+            where : {
+                id : id
+            },
+            data : {
+                nombre : data.nombre,
+                fecha : new Date(data.fecha),
+                estado : data.estado
+            }
+        })
+        resp.status(200).json(videojuegoActualizado)
+        return
+    }catch(e) {
+        const dataError = e as PrismaClientKnownRequestError
+        resp.status(400).json({
+            error : dataError.meta!.cause
+        })
     }
-
-    resp.status(400).json({
-        error: "El id que ha enviado no existe."
-    })
-    return
 })
 
 
