@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import cors from "cors"
 import bodyParser from "body-parser"
 import dataVideojuegos, { Videojuego } from "./data"
+import { PrismaClient } from "./generated/prisma"
 
 dotenv.config()
 const app = express()
@@ -16,8 +17,13 @@ app.use(bodyParser.urlencoded({
 
 
 // Endpoint GET para obtener videojuegos
-app.get("/videojuegos", (req : Request, resp : Response) => {
-    resp.status(200).json(dataVideojuegos)
+app.get("/videojuegos", async (req : Request, resp : Response) => {
+    const prisma = new PrismaClient()
+
+    // Obtenemos los videojuegos de la base de datos
+    const videojuegos = await prisma.videojuego.findMany()
+
+    resp.status(200).json(videojuegos)
 })
 
 // Endpoint GET para eliminar un videojuego
@@ -77,11 +83,17 @@ app.get("/videojuegos/:id", (req : Request, resp : Response) => {
 })
 
 // Endpoint POST para registrar un videojuego
-app.post("/videojuegos/crear", (req : Request, resp : Response) => {
+app.post("/videojuegos/crear", async (req : Request, resp : Response) => {
     const data = req.body
-    data.id = new Date().getTime()
-    dataVideojuegos.push(data)
-    resp.status(200).json(data)
+    const prisma = new PrismaClient()
+
+    const videojuego = await prisma.videojuego.create({
+        data : {
+            nombre : data.nombre,
+            estado : data.estado
+        }
+    })
+    resp.status(200).json(videojuego)
 })
 
 // Endpoint POST para modificar un videojuego
