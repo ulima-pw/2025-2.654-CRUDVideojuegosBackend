@@ -14,6 +14,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UsuarioEstado {
+  ACTIVO
+  INACTIVO
+}
+
 model Videojuego {
   id String @id @default(uuid())
   nombre String
@@ -27,4 +32,20 @@ model Categoria {
   id String @id @default(uuid())
   nombre String
   videojuegos Videojuego[]
+}
+
+model Usuario {
+  id String @id @default(uuid())
+  username String
+  password String
+  estado UsuarioEstado
+  perfil Perfil? 
+}
+
+model Perfil {
+  id String @id @default(uuid())
+  nombre String
+  apellido String
+  usuario_id String @unique
+  usuario Usuario @relation(fields: [usuario_id], references: [id])
 }
