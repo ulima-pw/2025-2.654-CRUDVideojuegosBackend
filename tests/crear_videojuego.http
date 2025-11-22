@@ -2,6 +2,12 @@ POST http://localhost:5002/videojuegos/crear
 Content-Type: application/json
 
 {
-    "nombre" : "Red Dead 1",
-    "estado" : "Nuevo"
+    "nombre" : "Minecraft",
+    "estado" : "Nuevo",
+    "categoria_id" : "8e8fcd2f-386a-4b38-85d2-d379dd17d026",
+    "plataformas" : [
+        {
+            "id" : "533ad22a-bf5b-46ef-93bf-397b1c999378"
+        }
+    ]
 }

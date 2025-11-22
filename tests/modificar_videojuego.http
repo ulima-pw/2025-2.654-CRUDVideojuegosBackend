@@ -2,8 +2,15 @@ POST http://localhost:5002/videojuegos/actualizar
 Content-Type: application/json
 
 {
-    "id" : "b9175dbc-d2ab-4771-ac3d-fe275e641bec",
+    "id" : "cdbc1a9b-bea6-4331-8f4d-84a9eb9bf810",
     "nombre" : "Red Dead 2",
-    "fecha" : "2025-11-14",
-    "estado" : "Usado"
+    "estado" : "Usado",
+    "plataformas" : [
+        {
+            "id" : "533ad22a-bf5b-46ef-93bf-397b1c999378"
+        },
+        {
+            "id" : "5fc86c36-8cd1-4218-afb8-b076db141b6e"
+        }
+    ]
 }

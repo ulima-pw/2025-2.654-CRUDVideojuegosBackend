@@ -22,7 +22,15 @@ app.get("/videojuegos", async (req : Request, resp : Response) => {
     const prisma = new PrismaClient()
 
     // Obtenemos los videojuegos de la base de datos
-    const videojuegos = await prisma.videojuego.findMany()
+    const videojuegos = await prisma.videojuego.findMany({
+        omit : {
+            categoria_id : true
+        },
+        include : {
+            categoria : true,
+            plataformas : true
+        }
+    })
 
     resp.status(200).json(videojuegos)
 })
@@ -96,7 +104,11 @@ app.post("/videojuegos/crear", async (req : Request, resp : Response) => {
     const videojuego = await prisma.videojuego.create({
         data : {
             nombre : data.nombre,
-            estado : data.estado
+            estado : data.estado,
+            categoria_id : data.categoria_id,
+            plataformas : {
+                connect : data.plataformas
+            }
         }
     })
     resp.status(200).json(videojuego)
@@ -116,8 +128,12 @@ app.post("/videojuegos/actualizar", async (req : Request, resp : Response) => {
             },
             data : {
                 nombre : data.nombre,
-                fecha : new Date(data.fecha),
-                estado : data.estado
+                fecha : data.fecha == undefined ? new Date() : new Date(data.fecha),
+                estado : data.estado,
+                categoria_id : data.categoria_id,
+                plataformas : {
+                    connect : data.plataformas
+                }
             }
         })
         resp.status(200).json(videojuegoActualizado)
@@ -128,6 +144,22 @@ app.post("/videojuegos/actualizar", async (req : Request, resp : Response) => {
             error : dataError.meta!.cause
         })
     }
+})
+
+app.get("/categorias", async (req : Request, resp : Response) => {
+    const prisma = new PrismaClient()
+
+    const categorias = await prisma.categoria.findMany()
+
+    resp.status(200).json(categorias)
+})
+
+app.get("/plataformas", async (req : Request, resp : Response) => {
+    const prisma = new PrismaClient()
+
+    const plataformas = await prisma.plataforma.findMany()
+
+    resp.status(200).json(plataformas)
 })
 
 
