@@ -26,6 +26,13 @@ model Videojuego {
   estado String
   categoria_id String?
   categoria Categoria? @relation(fields: [categoria_id], references: [id])
+  plataformas Plataforma[] @relation(name: "Videojuego_Plataforma")
+}
+
+model Plataforma {
+  id String @id @default(uuid())
+  nombre String
+  videojuegos Videojuego[] @relation(name: "Videojuego_Plataforma")
 }
 
 model Categoria {
@@ -49,3 +56,5 @@ model Perfil {
   usuario_id String @unique
   usuario Usuario @relation(fields: [usuario_id], references: [id])
 }
+
+
